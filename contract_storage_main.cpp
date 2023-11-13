@@ -81,7 +81,7 @@ void approve(const name& approver, uint64_t transaction_id, const checksum256& t
     }
 
 private:
-    struct [[eosio::table]] transaction {
+    struct [[eosio::table("txs")]] tx {
         uint64_t id;
         name sender;
         name recipient;
@@ -92,7 +92,7 @@ private:
         uint64_t primary_key() const { return id; }
     };
 
-    typedef eosio::multi_index<name("transactions"), transaction> transactions;
-    transactions trans_table;
+    typedef eosio::multi_index<name("txs"), tx> txs;
+    txs trans_table;
 };
 

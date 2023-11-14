@@ -39,14 +39,12 @@ void sendnft(const name& sender, const name& recipient, const std::vector<name>&
         row.nft_id = nft_id;
     });
 
-    // Передаем NFT из sender в storagetest1 и замораживаем его
-    auto nft_itr = nfts_table.find(nft_id);
-    eosio::check(nft_itr != nfts_table.end(), "NFT not found");
-
-    nfts_table.modify(nft_itr, get_self(), [&](auto& row) {
-        row.owner = name("storagetest1");
-        row.frozen = true;
-    });
+    action(
+        permission_level{get_self(), "active"_n},
+        "atomicassets"_n,
+        "transfer"_n,
+        std::make_tuple(sender, name("storagetest1"), nft_id, "sent from senderacount to storagetest1")
+    ).send();
 
     for (const auto& approver : approvers) {
         eosio::action(

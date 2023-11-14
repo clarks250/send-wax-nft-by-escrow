@@ -22,6 +22,24 @@
             ]
         },
         {
+            "name": "nft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "frozen",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
             "name": "notify",
             "base": "",
             "fields": [
@@ -68,6 +86,40 @@
                     "type": "uint64"
                 }
             ]
+        },
+        {
+            "name": "tx",
+            "base": "",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "sender",
+                    "type": "name"
+                },
+                {
+                    "name": "recipient",
+                    "type": "name"
+                },
+                {
+                    "name": "approvers",
+                    "type": "name[]"
+                },
+                {
+                    "name": "transaction_hash",
+                    "type": "checksum256"
+                },
+                {
+                    "name": "nft_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "approved_by",
+                    "type": "name[]"
+                }
+            ]
         }
     ],
     "actions": [
@@ -87,7 +139,22 @@
             "ricardian_contract": ""
         }
     ],
-    "tables": [],
+    "tables": [
+        {
+            "name": "nfts",
+            "type": "nft",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "transactions",
+            "type": "tx",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
     "ricardian_clauses": [],
     "variants": [],
     "action_results": []

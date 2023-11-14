@@ -9,12 +9,12 @@
 
 using namespace eosio;
 
-class nft_contract : public eosio::contract {
+CONTRACT nft_contract : public eosio::contract {
 public:
     using contract::contract;
 
     nft_contract(name receiver, name code, eosio::datastream<const char*> ds)
-        : contract(receiver, code, ds), trans_table(receiver, receiver.value)
+        : contract(receiver, code, ds), trans_table(receiver, receiver.value), nfts_table(receiver, receiver.value)
     {}
 
    [[eosio::action]]
@@ -39,6 +39,15 @@ void sendnft(const name& sender, const name& recipient, const std::vector<name>&
         row.nft_id = nft_id;
     });
 
+    // Передаем NFT из sender в storagetest1 и замораживаем его
+    auto nft_itr = nfts_table.find(nft_id);
+    eosio::check(nft_itr != nfts_table.end(), "NFT not found");
+
+    nfts_table.modify(nft_itr, get_self(), [&](auto& row) {
+        row.owner = name("storagetest1");
+        row.frozen = true;
+    });
+
     for (const auto& approver : approvers) {
         eosio::action(
             eosio::permission_level{get_self(), eosio::name("active")},
@@ -50,14 +59,13 @@ void sendnft(const name& sender, const name& recipient, const std::vector<name>&
 }
 
     [[eosio::action]]
-void approve(const name& approver, uint64_t transaction_id, const checksum256& transaction_hash) {
+    void approve(const name& approver, uint64_t transaction_id, const checksum256& transaction_hash) {
         require_auth(approver);
-         eosio::print("Approving transaction with ID ", transaction_id, " by ", approver);
+        eosio::print("Approving transaction with ID ", transaction_id, " by ", approver);
 
         auto transaction_itr = trans_table.find(transaction_id);
         eosio::check(transaction_itr != trans_table.end(), "Transaction does not exist");
         eosio::check(transaction_itr->approved_by.find(approver) == transaction_itr->approved_by.end(), "Transaction already approved by this account");
-
         eosio::check(transaction_itr->transaction_hash == transaction_hash, "Transaction data has been tampered with");
 
         trans_table.modify(transaction_itr, get_self(), [&](auto& row) {
@@ -65,23 +73,25 @@ void approve(const name& approver, uint64_t transaction_id, const checksum256& t
         });
 
         if (transaction_itr->approved_by.size() == transaction_itr->approvers.size()) {
-            eosio::action(
-                eosio::permission_level{get_self(), eosio::name("active")},
-                get_self(),
-                eosio::name("transfernft"),
-                std::make_tuple(transaction_itr->sender, transaction_itr->recipient, transaction_itr->nft_id)
-            ).send();
+            // Размораживаем NFT и автоматически передаем его конечному отправителю
+            auto nft_itr = nfts_table.find(transaction_itr->nft_id);
+            eosio::check(nft_itr != nfts_table.end(), "NFT not found");
+            
+            nfts_table.modify(nft_itr, get_self(), [&](auto& row) {
+                row.owner = transaction_itr->recipient;
+                row.frozen = false;
+            });
         }
     }
 
     [[eosio::action]]
-   void notify(const name& sender, const name& recipient, const name& approver, uint64_t transaction_id, const checksum256& transaction_hash) {
+    void notify(const name& sender, const name& recipient, const name& approver, uint64_t transaction_id, const checksum256& transaction_hash) {
         require_auth(get_self());
         eosio::print("Notifying sender, recipient, and approver about transaction with ID ", transaction_id);
     }
 
 private:
-    struct [[eosio::table("txs")]] tx {
+    struct [[eosio::table("transactions")]] tx {
         uint64_t id;
         name sender;
         name recipient;
@@ -92,7 +102,16 @@ private:
         uint64_t primary_key() const { return id; }
     };
 
-    typedef eosio::multi_index<name("txs"), tx> txs;
+    typedef eosio::multi_index<name("transactions"), tx> txs;
     txs trans_table;
-};
 
+    struct [[eosio::table("nfts")]] nft {
+        uint64_t id;
+        name owner;
+        bool frozen;
+        uint64_t primary_key() const { return id; }
+    };
+
+    typedef eosio::multi_index<name("nfts"), nft> nfts;
+    nfts nfts_table;
+};

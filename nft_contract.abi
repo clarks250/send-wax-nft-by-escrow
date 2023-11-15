@@ -4,6 +4,24 @@
     "types": [],
     "structs": [
         {
+            "name": "addaction",
+            "base": "",
+            "fields": [
+                {
+                    "name": "asset_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "recipient",
+                    "type": "name"
+                },
+                {
+                    "name": "min_escrows",
+                    "type": "uint32"
+                }
+            ]
+        },
+        {
             "name": "nft",
             "base": "",
             "fields": [
@@ -30,7 +48,13 @@
             ]
         }
     ],
-    "actions": [],
+    "actions": [
+        {
+            "name": "addaction",
+            "type": "addaction",
+            "ricardian_contract": ""
+        }
+    ],
     "tables": [
         {
             "name": "nft",

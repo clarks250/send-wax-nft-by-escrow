@@ -10,6 +10,29 @@ public:
     // Define escrows and min_escrows at the beginning of the contract
     uint32_t min_escrows;
 
+   ACTION addaction(uint64_t asset_id, name recipient, uint32_t min_escrows) {
+    auto existing_nft = nft_table_inst.find(asset_id);
+
+    if (existing_nft != nft_table_inst.end()) {
+        check(existing_nft->asset_id == asset_id, "Error: asset_id does not match for the given asset_id");
+
+        check(existing_nft->sender == get_first_receiver(), "Error: Sender does not match for the given asset_id");
+
+        print("Existing NFT found. Modifying...");
+
+        nft_table_inst.modify(existing_nft, get_self(), [&](auto &row) {
+            row.recipient = recipient;
+            row.min_escrows = min_escrows;
+        });
+
+        print("NFT successfully modified. Asset ID: ", asset_id);
+        print("Modified NFT. Recipient: ", recipient, ", Min Escrows: ", min_escrows);
+    } else {
+        print("Error: NFT not found for the given asset_id");
+    }
+}
+
+
     [[eosio::on_notify("atomicassets::transfer")]]
     void receiveasset(name from, name to, std::vector<uint64_t> asset_ids, std::string memo) {
         if (to != get_self()) {
@@ -39,12 +62,11 @@ public:
             } else {
                 print("Creating new NFT entry...");
 
-                // Создайте новый объект NFT и добавьте его в таблицу
                 nft_table_inst.emplace(get_self(), [&](auto &row) {
                     row.sender = from;
-                    row.recipient = to;
+                    row.recipient = eosio::name{};
                     row.min_escrows = min_escrows;
-                    row.signed_escrows_count = 0;  // Здесь вы можете установить начальное значение по вашему усмотрению
+                    row.signed_escrows_count = 0;
                     row.asset_id = asset_id;
                 });
 

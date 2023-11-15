@@ -16,14 +16,6 @@
                     "type": "name"
                 },
                 {
-                    "name": "escrows",
-                    "type": "name[]"
-                },
-                {
-                    "name": "signed_escrows",
-                    "type": "name[]"
-                },
-                {
                     "name": "min_escrows",
                     "type": "uint32"
                 },
@@ -36,60 +28,9 @@
                     "type": "uint64"
                 }
             ]
-        },
-        {
-            "name": "signescrow",
-            "base": "",
-            "fields": [
-                {
-                    "name": "escrow",
-                    "type": "name"
-                },
-                {
-                    "name": "asset_id",
-                    "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "updateinfo",
-            "base": "",
-            "fields": [
-                {
-                    "name": "sender",
-                    "type": "name"
-                },
-                {
-                    "name": "asset_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "recipient",
-                    "type": "name"
-                },
-                {
-                    "name": "escrows",
-                    "type": "name[]"
-                },
-                {
-                    "name": "min_escrows",
-                    "type": "uint32"
-                }
-            ]
         }
     ],
-    "actions": [
-        {
-            "name": "signescrow",
-            "type": "signescrow",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "updateinfo",
-            "type": "updateinfo",
-            "ricardian_contract": ""
-        }
-    ],
+    "actions": [],
     "tables": [
         {
             "name": "nft",

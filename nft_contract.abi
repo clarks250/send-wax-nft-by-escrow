@@ -4,46 +4,10 @@
     "types": [],
     "structs": [
         {
-            "name": "approve",
-            "base": "",
-            "fields": [
-                {
-                    "name": "approver",
-                    "type": "name"
-                },
-                {
-                    "name": "transaction_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "transaction_hash",
-                    "type": "checksum256"
-                }
-            ]
-        },
-        {
             "name": "nft",
             "base": "",
             "fields": [
                 {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "owner",
-                    "type": "name"
-                },
-                {
-                    "name": "frozen",
-                    "type": "bool"
-                }
-            ]
-        },
-        {
-            "name": "notify",
-            "base": "",
-            "fields": [
-                {
                     "name": "sender",
                     "type": "name"
                 },
@@ -52,21 +16,43 @@
                     "type": "name"
                 },
                 {
-                    "name": "approver",
-                    "type": "name"
+                    "name": "escrows",
+                    "type": "name[]"
                 },
                 {
-                    "name": "transaction_id",
+                    "name": "signed_escrows",
+                    "type": "name[]"
+                },
+                {
+                    "name": "min_escrows",
+                    "type": "uint32"
+                },
+                {
+                    "name": "signed_escrows_count",
+                    "type": "uint32"
+                },
+                {
+                    "name": "asset_id",
                     "type": "uint64"
-                },
-                {
-                    "name": "transaction_hash",
-                    "type": "checksum256"
                 }
             ]
         },
         {
-            "name": "sendnft",
+            "name": "signescrow",
+            "base": "",
+            "fields": [
+                {
+                    "name": "escrow",
+                    "type": "name"
+                },
+                {
+                    "name": "asset_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "updateinfo",
             "base": "",
             "fields": [
                 {
@@ -74,82 +60,40 @@
                     "type": "name"
                 },
                 {
-                    "name": "recipient",
-                    "type": "name"
-                },
-                {
-                    "name": "approvers",
-                    "type": "name[]"
-                },
-                {
-                    "name": "nft_id",
+                    "name": "asset_id",
                     "type": "uint64"
-                }
-            ]
-        },
-        {
-            "name": "tx",
-            "base": "",
-            "fields": [
-                {
-                    "name": "id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "sender",
-                    "type": "name"
                 },
                 {
                     "name": "recipient",
                     "type": "name"
                 },
                 {
-                    "name": "approvers",
+                    "name": "escrows",
                     "type": "name[]"
                 },
                 {
-                    "name": "transaction_hash",
-                    "type": "checksum256"
-                },
-                {
-                    "name": "nft_id",
-                    "type": "uint64"
-                },
-                {
-                    "name": "approved_by",
-                    "type": "name[]"
+                    "name": "min_escrows",
+                    "type": "uint32"
                 }
             ]
         }
     ],
     "actions": [
         {
-            "name": "approve",
-            "type": "approve",
+            "name": "signescrow",
+            "type": "signescrow",
             "ricardian_contract": ""
         },
         {
-            "name": "notify",
-            "type": "notify",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "sendnft",
-            "type": "sendnft",
+            "name": "updateinfo",
+            "type": "updateinfo",
             "ricardian_contract": ""
         }
     ],
     "tables": [
         {
-            "name": "nfts",
+            "name": "nft",
             "type": "nft",
-            "index_type": "i64",
-            "key_names": [],
-            "key_types": []
-        },
-        {
-            "name": "transactions",
-            "type": "tx",
             "index_type": "i64",
             "key_names": [],
             "key_types": []

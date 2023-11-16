@@ -4,12 +4,20 @@
     "types": [],
     "structs": [
         {
-            "name": "addaction",
+            "name": "choseescrows",
             "base": "",
             "fields": [
                 {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
                     "name": "asset_id",
                     "type": "uint64"
+                },
+                {
+                    "name": "escrows",
+                    "type": "name[]"
                 },
                 {
                     "name": "recipient",
@@ -22,7 +30,12 @@
             ]
         },
         {
-            "name": "nft",
+            "name": "clearnft",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "escrowinfo",
             "base": "",
             "fields": [
                 {
@@ -32,6 +45,10 @@
                 {
                     "name": "recipient",
                     "type": "name"
+                },
+                {
+                    "name": "escrows",
+                    "type": "name[]"
                 },
                 {
                     "name": "min_escrows",
@@ -46,16 +63,69 @@
                     "type": "uint64"
                 }
             ]
+        },
+        {
+            "name": "escrowsign",
+            "base": "",
+            "fields": [
+                {
+                    "name": "sender",
+                    "type": "name"
+                },
+                {
+                    "name": "recipient",
+                    "type": "name"
+                },
+                {
+                    "name": "asset_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "escrow",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "nft",
+            "base": "",
+            "fields": [
+                {
+                    "name": "sender",
+                    "type": "name"
+                },
+                {
+                    "name": "asset_id",
+                    "type": "uint64"
+                }
+            ]
         }
     ],
     "actions": [
         {
-            "name": "addaction",
-            "type": "addaction",
+            "name": "choseescrows",
+            "type": "choseescrows",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "clearnft",
+            "type": "clearnft",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "escrowsign",
+            "type": "escrowsign",
             "ricardian_contract": ""
         }
     ],
     "tables": [
+        {
+            "name": "escrow",
+            "type": "escrowinfo",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
         {
             "name": "nft",
             "type": "nft",

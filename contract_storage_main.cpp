@@ -71,62 +71,36 @@ public:
             print("Escrow not found");
             return;
         }
-
-        else if (escrow_index->sender != sender)
+        else if (escrow_index->sender != sender || escrow_index->recipient != recipient || escrow_index->asset_id != asset_id)
         {
-            print("Invalid sender");
+            print("Invalid sender, recipient, or asset_id");
             return;
         }
-
-        else if (escrow_index->recipient != recipient)
-        {
-            print("Invalid recipient");
-            return;
-        }
-
-        else if (escrow_index->asset_id != asset_id)
-        {
-            print("Invalid asset_id");
-            return;
-        }
-
         else
         {
+            auto new_escrows = escrow_index->escrows;
+            new_escrows.erase(std::remove(new_escrows.begin(), new_escrows.end(), escrow), new_escrows.end());
 
-            auto escrow_itr = std::find(escrow_index->escrows.begin(), escrow_index->escrows.end(), escrow);
-            if (escrow_itr == escrow_index->escrows.end())
+            escrow_table_inst.modify(escrow_index, get_self(), [&](auto &row)
+                                     {
+            row.escrows = new_escrows;
+            row.signed_escrows_count += 1; });
+
+            if (escrow_index->min_escrows <= escrow_index->signed_escrows_count)
             {
-                print("Escrow not found in the list");
-                return;
-            }
-
-            else
-            {
-
-                // Удаляем существующую запись
+                action(
+                    permission_level{get_self(), "active"_n},
+                    "atomicassets"_n,
+                    "transfer"_n,
+                    std::make_tuple(get_self(), recipient, std::vector<uint64_t>{asset_id}, std::string("")))
+                    .send();
+                escrow_table_inst.modify(escrow_index, get_self(), [&](auto &row)
+                                         {
+        row.escrows = new_escrows;
+        row.signed_escrows_count += 1; });
                 escrow_table_inst.erase(escrow_index);
-
-                // Создаем новую запись с обновленными значениями
-                escrow_table_inst.emplace(get_self(), [&](auto &row)
-                                          {
-        row.sender = sender;
-        row.recipient = recipient;
-        row.escrows = escrow_index->escrows;
-        row.min_escrows = escrow_index->min_escrows;
-        row.signed_escrows_count = escrow_index->signed_escrows_count + 1;
-        row.asset_id = asset_id; });
             }
         }
-
-        //  if (escrow_index->min_escrows >= escrow_index->signed_escrows_count)
-        // {
-        //     action(
-        //         permission_level{get_self(), "active"_n},
-        //         "atomicassets"_n,
-        //         "transfer"_n,
-        //         std::make_tuple(get_self(), recipient , asset_id, sender))
-        //         .send();
-        // }
     }
 
     [[eosio::on_notify("atomicassets::transfer")]] void receiveasset(name from, name to, std::vector<uint64_t> asset_ids, std::string memo)

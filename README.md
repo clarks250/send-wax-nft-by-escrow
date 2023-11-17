@@ -18,14 +18,51 @@
 
 **Key Points:**
 
-1.The contract uses authentication checks (require_auth) to manage access to actions.
+1. The contract uses authentication checks (require_auth) to manage access to actions.
 
-2.The contract supports condition checks before executing key actions, such as choosing escrows and signing.
+2. The contract supports condition checks before executing key actions, such as choosing escrows and signing.
 
-3.NFT transfer occurs using the "transfer" action of the "atomicassets" contract.
+3. NFT transfer occurs using the "transfer" action of the "atomicassets" contract.
 
-4.In case of errors or incorrect conditions, error messages are printed.
+4. In case of errors or incorrect conditions, error messages are printed.
 
-5.The "canceltx" action provides a mechanism for canceling transactions and returning assets to the sender.
+5. The "canceltx" action provides a mechanism for canceling transactions and returning assets to the sender.
 
-6.The "clearnft" action efficiently clears all records in both the nft_table and escrow_table.
+6. The "clearnft" action efficiently clears all records in both the nft_table and escrow_table.
+
+
+**How to use**
+
+P.S. You can use WAX blockchain scanners, for example: https://testnet.waxblock.io/account/storagetest3 to work with transactions. Its simple, so I will explain how to use it by console:
+
+1. Install the IDE and CDT from documentation: https://developers.eos.io/welcome/latest/index and https://github.com/AntelopeIO/cdt
+
+2. Create a wallet by command:
+
+cleos wallet create -n <name of wallet> --file <name of file>
+
+3. Import your wallet with your private key, if you have not, create an account and get test tokens on https://waxsweden.org/testnet/
+
+cleos wallet import -n <name of wallet>
+
+4. Transfer NFT to the contract account
+
+For each TX you should use API, you can find it on https://waxsweden.org/testnet/.
+
+cleos -u YOUR_API_LINK push action atomicassets transfer '["sender_account_public_key", "contract_account_public_key", [sender_asset_id], "memo"]' -p sender_account_public_key@active
+
+5. Choose escrows for your TX
+
+cleos -u YOUR_API_LINK push action storagetest3 choseescrows '["sender_account_public_key", sender_asset_id, ["escrow_account_public_key1","escrow_account_public_key2"], "receive_account_public_key", 1]' -p escrow_account_public_key@active
+
+6. Sign TX for escrows
+
+cleos -u YOUR_API_LINK push action storagetest3 escrowsign '["sender_account_public_key", "receive_account_public_key", asset_id , "escrow_account_public_key"]' -p escrow_account_public_key@active
+
+7. Cancel TX for sender
+
+cleos -u YOUR_API_LINK push action storagetest3 canceltx '["sender_account_public_key", "receive_account_public_key", sender_account_asset_id]' -p sender_account_public_key@active
+
+8. Clear Tables TX (ONLY WITH CONTRACT PRIVATE KEY)
+
+cleos -u YOUR_API_LINK push action contract_account_public_key clearnft  -p contract_account_public_key@active

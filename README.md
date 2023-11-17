@@ -18,14 +18,14 @@
 
 **Key Points:**
 
-***1.***The contract uses authentication checks (require_auth) to manage access to actions.
+1.The contract uses authentication checks (require_auth) to manage access to actions.
 
-***2.***The contract supports condition checks before executing key actions, such as choosing escrows and signing.
+2.The contract supports condition checks before executing key actions, such as choosing escrows and signing.
 
-***3.***NFT transfer occurs using the "transfer" action of the "atomicassets" contract.
+3.NFT transfer occurs using the "transfer" action of the "atomicassets" contract.
 
-***4.***In case of errors or incorrect conditions, error messages are printed.
+4.In case of errors or incorrect conditions, error messages are printed.
 
-***5.***The "canceltx" action provides a mechanism for canceling transactions and returning assets to the sender.
+5.The "canceltx" action provides a mechanism for canceling transactions and returning assets to the sender.
 
-***6.***The "clearnft" action efficiently clears all records in both the nft_table and escrow_table.
+6.The "clearnft" action efficiently clears all records in both the nft_table and escrow_table.

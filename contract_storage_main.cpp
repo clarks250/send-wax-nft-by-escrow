@@ -12,10 +12,16 @@ public:
     uint32_t min_escrows;
     std::vector<name> escrows;
 
+    // Action to choose escrows for a given NFT
     ACTION choseescrows(name from, uint64_t asset_id, std::vector<name> escrows, name recipient, uint32_t min_escrows)
     {
+        // Require authentication from the caller
         require_auth(from);
+
+        // Alias for the sender's name
         name sender = from;
+
+        // Find existing NFT record by asset_id
         auto existing_nft = nft_table_inst.find(asset_id);
         if (existing_nft == nft_table_inst.end() || existing_nft->sender != sender || existing_nft->asset_id != asset_id)
         {
@@ -34,6 +40,7 @@ public:
         }
         else
         {
+             // Find existing escrow record by asset_id
             auto existing_escrow = escrow_table_inst.find(asset_id);
 
             if (existing_escrow != escrow_table_inst.end())
@@ -64,30 +71,37 @@ public:
     [[eosio::action]] void escrowsign(name sender, name recipient, uint64_t asset_id, name escrow)
     {
         require_auth(escrow);
-
+        
+         // Find the escrow entry by asset_id
         auto escrow_index = escrow_table_inst.find(asset_id);
         if (escrow_index == escrow_table_inst.end())
         {
+            // Escrow entry not found, print an error message
             print("Escrow not found");
             return;
         }
         else if (escrow_index->sender != sender || escrow_index->recipient != recipient || escrow_index->asset_id != asset_id)
         {
+             // Check if sender, recipient, or asset_id mismatch, print an error message
             print("Invalid sender, recipient, or asset_id");
             return;
         }
         else
         {
+            // Create a copy of the escrows vector and remove the escrow from the list
             auto new_escrows = escrow_index->escrows;
             new_escrows.erase(std::remove(new_escrows.begin(), new_escrows.end(), escrow), new_escrows.end());
 
+            // Modify the escrow entry in the table
             escrow_table_inst.modify(escrow_index, get_self(), [&](auto &row)
                                      {
             row.escrows = new_escrows;
             row.signed_escrows_count += 1; });
 
+            // Check if the minimum number of escrows is reached
             if (escrow_index->min_escrows <= escrow_index->signed_escrows_count)
             {
+                 // Transfer the asset using the "atomicassets" contract
                 action(
                     permission_level{get_self(), "active"_n},
                     "atomicassets"_n,
@@ -96,8 +110,11 @@ public:
                     .send();
                 escrow_table_inst.modify(escrow_index, get_self(), [&](auto &row)
                                          {
+        // Modify the escrow entry again
         row.escrows = new_escrows;
         row.signed_escrows_count += 1; });
+
+          // Erase the escrow entry from the table
                 escrow_table_inst.erase(escrow_index);
             }
         }
@@ -105,33 +122,40 @@ public:
 
     [[eosio::on_notify("atomicassets::transfer")]] void receiveasset(name from, name to, std::vector<uint64_t> asset_ids, std::string memo)
     {
+        // Check if the notification is intended for this contract
         if (to != get_self())
         {
             print("Invalid recipient. Ignoring the notification.");
             return;
         }
 
+        // Ensure that the number of tokens is exactly 1
         check(asset_ids.size() == 1, "Error: Number of tokens must be exactly 1");
 
+        // Process each asset_id in the notification
         for (const auto &asset_id : asset_ids)
         {
+            // Find the existing NFT record by asset_id
             auto existing_nft = nft_table_inst.find(asset_id);
 
+            // Print information about the received asset
             print("Received asset. From: ", from, ", To: ", to, ", Asset ID: ", asset_id, ", Memo: ", memo);
 
+             // Check if the NFT with the given asset_id is already in storage
             if (existing_nft != nft_table_inst.end() && existing_nft->sender == from)
             {
                 print("This nft id already in storage");
             }
             else
             {
+                 // Create a new NFT entry
                 print("Creating new NFT entry...");
 
                 nft_table_inst.emplace(get_self(), [&](auto &row)
                                        {
                     row.sender = from;
                     row.asset_id = asset_id; });
-
+                // Print information about the new NFT entry
                 print("New NFT entry created. Sender: ", from, ", Asset ID: ", asset_id);
             }
         }
@@ -148,6 +172,7 @@ public:
             itr = nft_table_inst.erase(itr);
         }
 
+        // Iterate through all records in the escrow table and remove them
         auto itresc = escrow_table_inst.begin();
         while (itresc != escrow_table_inst.end())
         {
@@ -163,9 +188,11 @@ private:
         name sender;
         uint64_t asset_id;
 
+        // Define the primary key for the NFT table
         uint64_t primary_key() const { return asset_id; }
     };
 
+    // Define the multi-index table for NFTs
     typedef multi_index<"nft"_n, nft> nft_table;
     nft_table nft_table_inst{get_self(), get_self().value};
 
@@ -177,9 +204,12 @@ private:
         uint32_t min_escrows;
         uint32_t signed_escrows_count;
         uint64_t asset_id;
+
+        // Define the primary key for the escrow table
         uint64_t primary_key() const { return asset_id; }
     };
 
+    // Define the multi-index table for escrow information
     typedef multi_index<"escrow"_n, escrowinfo> escrow_table;
     escrow_table escrow_table_inst{get_self(), get_self().value};
 };

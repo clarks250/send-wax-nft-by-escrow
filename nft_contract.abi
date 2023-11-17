@@ -4,6 +4,24 @@
     "types": [],
     "structs": [
         {
+            "name": "canceltx",
+            "base": "",
+            "fields": [
+                {
+                    "name": "sender",
+                    "type": "name"
+                },
+                {
+                    "name": "recipient",
+                    "type": "name"
+                },
+                {
+                    "name": "asset_id",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "choseescrows",
             "base": "",
             "fields": [
@@ -102,6 +120,11 @@
         }
     ],
     "actions": [
+        {
+            "name": "canceltx",
+            "type": "canceltx",
+            "ricardian_contract": ""
+        },
         {
             "name": "choseescrows",
             "type": "choseescrows",
